@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.2.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.1;
+
+deltaT          1e-04;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.001;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           0.2;
+maxAlphaCo      0.2;
+
+maxDeltaT       0.01;
+
+libs (
+      "libOpenFOAM.so"
+      "libsimpleSwakFunctionObjects.so"
+      "libswakFunctionObjects.so"
+     );
+functions
+(
+    bubbleY
+    {
+        type swakExpression;
+        valueType internalField;
+	verbose true;
+        variables (
+             "newPos=sum(pos()*vol()*(1.0-alpha1))/sum(vol()*(1.0-alpha1));"
+	     "move=newPos-oldPos;"
+       	     "velocity=move/(deltaT());"
+             "oldPos=newPos;" 
+                  );
+		storedVariables (
+		{     		
+		name oldPos;
+    		initialValue "vector(0,0,0)";
+		}
+		);
+        expression "velocity";
+        accumulations (
+                       min
+                      );
+        
+        
+    }
+);
+// ************************************************************************* //
